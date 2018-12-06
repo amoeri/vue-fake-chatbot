@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Vue Fake Chatbot</title>
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+  </head>
+  <body>
+    <div id="app">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Vue Fake Chatbot</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item active">
+                <a class="nav-link" href="https://github.com/iskubs/vue-fake-chatbot">Source@Github</a>
+              </li>
+            </ul>
+          </div>
+      </nav>
+      <div class="container-fluid">
+        <div class="row" v-for="message in conversation" v-bind:key="message.id">
+          <div class="col" v-if="message.actor == 'bot'">
+            <div class="btn-lg btn-success">
+              {{ message.text }}
+            </div>
+          </div>
+          <div class="col" v-if="message.actor == 'user' && !message.selection">
+            <div class="row">
+              <div class="col" v-for="option in message.options">
+                <button type="button" class="btn-lg btn-outline-primary"  v-on:click="userInput( option.input )">{{ option.input }}</button>
+              </div>
+            </div>
+          </div>
+          <div class="col" v-if="message.selection">
+            <div class="btn-lg btn-primary">
+              {{ message.selection }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<!-- Bootstrap JS and Dependencies CDN -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<!-- Vue.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+<!-- Vue.js Code -->
+<script>
+  var app = new Vue({
+  el: '#app',
+  data: {
+    conversationTemplate: {
+      input: null,
+      bot: 'Hello Matthias',
+      user: [
+        {
+          input: 'Hi Alex',
+          bot: 'I heard you were looking for a chatbot.',
+          user: [
+            {
+              input: 'Yes I am.',
+              bot: 'Sounds great, click in the navigation to have a look at my source code on Github.',
+              user: []
+            },
+            {
+              input: 'No actually',
+              bot: 'Hmm, ok, that\'s too bad, you can still click in the navigation to have a look at my source code on Github.',
+              user: []
+            }
+          ]
+        }
+      ]
+    },
+    conversation: []
+  },
+  mounted () {
+    this.userInput( null );
+  },
+  methods: {
+    userInput: function ( input ) {
+      if( input ) {
+        this.conversationTemplate = this.conversationTemplate.user.filter(u => u.input == input)[0];
+        this.conversation[this.conversation.length - 1].selection = input;
+      }
+      console.log(this.conversationTemplate);
+      this.conversation.push(
+        {
+          id: this.conversation.length + 1,
+          actor: 'bot',
+          text: this.conversationTemplate.bot
+        }
+      );
+      this.conversation.push(
+        {
+          id: this.conversation.length + 1,
+          actor: 'user',
+          options: this.conversationTemplate.user,
+          selection: null
+        }
+      );
+    }
+  }
+})
+</script>
